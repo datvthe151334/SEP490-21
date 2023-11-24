@@ -11,6 +11,7 @@ namespace RecruitXpress_BE.DTO
         public int? ProfileId { get; set; }
         public int? TemplateId { get; set; }
         public int? Status { get; set; }
+        public int? AssignedFor { get; set; }
 
         public virtual JobDTO? Job { get; set; }
 
@@ -25,6 +26,7 @@ namespace RecruitXpress_BE.DTO
         public virtual EvaluateDTO? Evaluate { get; set; }
 
         public virtual ExamDTO? Exam { get; set; }
+        public virtual AssignedProfileDTO? AssignedForInfor { get; set; }
 
 
     }
@@ -62,6 +64,12 @@ namespace RecruitXpress_BE.DTO
         public string? Url { get; set; }
 
     }
+    public partial class AssignedProfileDTO
+    {
+        public int accountId { get; set; }
+        public string? Name { get; set; }
+
+    }
     public partial class JobDTO{
     public int JobId { get; set; }
     public string? Title { get; set; }
@@ -71,7 +79,8 @@ namespace RecruitXpress_BE.DTO
     public string? EmploymentType { get; set; }
     public string? Industry { get; set; }
     public string? Requirements { get; set; }
-    public string? SalaryRange { get; set; }
+    public long? MinSalary { get; set; }
+    public long? MaxSalary { get; set; }
     public DateTime? ApplicationDeadline { get; set; }
     public DateTime? DatePosted { get; set; }
     public string? ContactPerson { get; set; }

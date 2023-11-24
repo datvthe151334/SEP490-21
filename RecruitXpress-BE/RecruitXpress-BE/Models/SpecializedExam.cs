@@ -20,8 +20,10 @@ namespace RecruitXpress_BE.Models
         public int? Status { get; set; }
         public string? Code { get; set; }
         public string? ExpertEmail { get; set; }
+        public int? JobId { get; set; }
 
         public virtual Account? CreatedByNavigation { get; set; }
+        public virtual JobPosting? Job { get; set; }
         public virtual ICollection<Exam> Exams { get; set; }
     }
 }

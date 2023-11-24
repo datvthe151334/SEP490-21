@@ -667,6 +667,11 @@ namespace RecruitXpress_BE.Models
                     .WithMany(p => p.SpecializedExams)
                     .HasForeignKey(d => d.CreatedBy)
                     .HasConstraintName("FK_SpecializedExam_Account");
+
+                entity.HasOne(d => d.Job)
+                    .WithMany(p => p.SpecializedExams)
+                    .HasForeignKey(d => d.JobId)
+                    .HasConstraintName("FK_SpecializedExam_JobPosting");
             });
 
             modelBuilder.Entity<UserAnalytic>(entity =>

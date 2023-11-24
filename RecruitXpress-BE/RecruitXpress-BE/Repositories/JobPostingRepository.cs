@@ -44,34 +44,50 @@ public class JobPostingRepository : IJobPostingRepository
                 DatePosted = jobPosting.DatePosted,
                 Status = jobPosting.Status,
                 IsPreferred = jobPosting.WishLists.Any(w => w.AccountId == accountId),
-                TotalCount = jobPostings.Count()
             })
             .Skip((page - 1) * size).Take(size)
             .ToListAsync();
     }
 
-    public async Task<List<JobPostingDTO>> GetListJobPostingAdvancedSearch(JobPostingSearchDTO jobPostingSearchDto, int? accountId,
-        int page, int size)
+    public async Task<JobPostingResponse> GetListJobPostingAdvancedSearch(JobPostingSearchDTO jobPostingSearchDto, int? accountId,
+        int? page, int? size)
     {
-        var query = GetAdvancedSearchJobPostingQuery(jobPostingSearchDto, accountId);
-        return await query
-            .Select(jobPosting => new JobPostingDTO()
+        try
+        {
+            var query = GetAdvancedSearchJobPostingQuery(jobPostingSearchDto, accountId);
+            
+            if (page != null && size != null)
             {
-                JobId = jobPosting.JobId,
-                Title = jobPosting.Title,
-                Company = jobPosting.Company,
-                Location = jobPosting.Location,
-                EmploymentType = jobPosting.EmploymentType,
-                Industry = jobPosting.Industry,
-                ApplicationDeadline = jobPosting.ApplicationDeadline,
-                Requirements = jobPosting.Requirements,
-                DatePosted = jobPosting.DatePosted,
-                Status = jobPosting.Status,
-                IsPreferred = jobPosting.WishLists.Any(w => w.AccountId == accountId),
-                TotalCount = query.Count()
-            })
-            .Skip((page - 1) * size).Take(size)
-            .ToListAsync();
+                query = query.Skip(((int)page - 1) * (int)size).Take((int)size);
+            }
+            var jobPostingDTO =  await query
+                .Select(jobPosting => new JobPostingDTO()
+                {
+                    JobId = jobPosting.JobId,
+                    Title = jobPosting.Title,
+                    Company = jobPosting.Company,
+                    Location = jobPosting.Location,
+                    EmploymentType = jobPosting.EmploymentType,
+                    Industry = jobPosting.Industry,
+                    ApplicationDeadline = jobPosting.ApplicationDeadline,
+                    Requirements = jobPosting.Requirements,
+                    DatePosted = DateTime.Now,
+                    Status = jobPosting.Status,
+                    MinSalary = jobPosting.MinSalary,
+                    MaxSalary = jobPosting.MaxSalary,
+                    IsPreferred = jobPosting.WishLists.Any(w => w.AccountId == accountId)
+                }).ToListAsync();
+            return new JobPostingResponse()
+            {
+                Items = jobPostingDTO,
+                TotalCount = await query.CountAsync()
+            };
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
     public async Task<JobPostingDTO?> GetJobPosting(int id, int? accountId)
@@ -145,7 +161,7 @@ public class JobPostingRepository : IJobPostingRepository
 
     public IQueryable<JobPosting> GetAdvancedSearchJobPostingQuery(JobPostingSearchDTO searchDto, int? accountId)
     {
-        var query = _context.JobPostings.Where(j => j.Status == Constant.ENTITY_STATUS.ACTIVE).AsQueryable();
+        var query = _context.JobPostings.AsQueryable();
 
         if (accountId != null)
         {
@@ -179,15 +195,19 @@ public class JobPostingRepository : IJobPostingRepository
             query = query.Where(j => j.Industry == searchDto.Industry);
         }
 
-        // if (!string.IsNullOrEmpty(searchDto.SalaryRange))
-        // {
-        //     var salaryRange = searchDto.SalaryRange.Split("-");
-        //     query = query.Where(j => j.MinSalary >= double.Parse(salaryRange[0]) && j.MaxSalary <= double.Parse(salaryRange[1]));
-        // }
+        if (searchDto is { MinSalary: not null, MaxSalary: not null })
+        {
+            query = query.Where(j => j.MinSalary >= searchDto.MinSalary && j.MaxSalary <= searchDto.MaxSalary);
+        }
 
         if (searchDto.ApplicationDeadline.HasValue)
         {
             query = query.Where(j => j.ApplicationDeadline <= searchDto.ApplicationDeadline);
+        }
+        
+        if (searchDto.status.HasValue)
+        {
+            query = query.Where(j => j.Status == searchDto.status);
         }
 
         if (!string.IsNullOrEmpty(searchDto.SortBy))

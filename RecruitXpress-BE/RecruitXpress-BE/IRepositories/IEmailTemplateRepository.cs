@@ -14,12 +14,13 @@ namespace RecruitXpress_BE.IRepositories
         Task UpdateEmailTemplate(EmailTemplate emailTemplate);
 
         Task DeleteEmailTemplate(int templateId);
-        Task SendEmailRefuse(int mailtype, string email, string name);
-        Task SendEmailInterview(int mailtype, string email, string name, string time, string location, string interviewer);
-        Task SendEmailExamSchedule(int mailtype, string email, string name, string time, string location);
-        Task SendEmailUpdateProfile(int mailtype, string email, string name);
-        Task SendEmailAccepted(int mailtype, string email, string name);
-        Task SendEmailCanceled(int mailtype, string email, string name);
+        Task SendEmailSubmitJob(int jobApplicationID);
+        Task SendEmailRefuse(int jobApplicationID, string reason);
+        Task SendEmailInterviewSchedule(int jobApplicationID, string time, string location, string? interviewer);
+        Task SendEmailUpdateProfile(int jobApplicationID);
+        Task SendEmailExamSchedule(int jobApplicationID, string time, string location);
+        Task SendEmailAccepted(int jobApplicationID);
+        Task SendEmailCanceled(int jobApplicationID);
 
     }
 }

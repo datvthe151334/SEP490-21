@@ -38,7 +38,7 @@ public class ScheduleController : ControllerBase
             }
             catch (Exception e)
             {
-                return StatusCode(500, e.Message);
+                return NotFound(e.Message);
             }
         }
 

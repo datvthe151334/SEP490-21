@@ -23,13 +23,13 @@ public class WishListController : ControllerBase
         bool? isSortAscending, int page, int size) =>
         await _wishListRepository.GetListWishLists(accountId, searchString, orderBy, isSortAscending, page, size);
 
-    //GET: api/WishList/{accountId}
-    [HttpGet("accountId")]
-    public async Task<ActionResult<List<WishList?>>> GetWishList(int accountId)
-    {
-        var wishLists = await _wishListRepository.GetWishList(accountId);
-        return wishLists;
-    }
+    // //GET: api/WishList/{accountId}
+    // [HttpGet("accountId")]
+    // public async Task<ActionResult<List<WishList?>>> GetWishList(int accountId)
+    // {
+    //     var wishLists = await _wishListRepository.GetWishList(accountId);
+    //     return wishLists;
+    // }
 
     //POST: api/WishList
     [HttpPost]
@@ -38,7 +38,7 @@ public class WishListController : ControllerBase
         try
         {
             var result = await _wishListRepository.AddWishList(wishList);
-            return CreatedAtAction(nameof(GetWishList), new { id = result.WishlistId }, result);
+            return CreatedAtAction(nameof(AddWishList), new { id = result.WishlistId }, result);
         }
         catch (Exception e)
         {

@@ -38,6 +38,25 @@ namespace RecruitXpress_BE.Helper
             public const int INTERVIEWER = 4;
             public const int EXPERT = 5;
         }
+
+        public static class MailType
+        {
+            public static int REFUSED = 0;
+            public static int SUBMIT = 1;
+            public static int PASSCV = 2;
+            public static int EXAMSCHEDULE = 3;
+            public static int GRADERESULT = 4;
+            public static int INTERVIEWSCHEDULE = 6;
+            public static int PASSINTERVIEW = 7;
+            public static int ACCEPTED = 8;
+            public static int CANCEL = 9;
+        }
+        
+        public static class SCHEDULE_TYPE
+        {
+            public static int EXAM = 2;
+            public static int INTERVIEW = 1;
+        }
     }
     public static class ConstantQuestion
     {

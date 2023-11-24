@@ -16,7 +16,7 @@ namespace RecruitXpress_BE.Models
         public int? TemplateId { get; set; }
         public int? Status { get; set; }
         public int? AssignedFor { get; set; }
-        public TimeSpan? CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
 
         public virtual JobPosting? Job { get; set; }
         public virtual Profile? Profile { get; set; }

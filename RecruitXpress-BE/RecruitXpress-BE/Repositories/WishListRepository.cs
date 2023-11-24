@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RecruitXpress_BE.DTO;
+using RecruitXpress_BE.Helper;
 using RecruitXpress_BE.IRepositories;
 using RecruitXpress_BE.Models;
 
@@ -89,7 +90,7 @@ public class WishListRepository : IWishListRepository
     {
         var query = _context.WishLists
             .Include(w => w.Job)
-            .Where(w => w.AccountId == accountId)
+            .Where(w => w.AccountId == accountId && w.Job.Status == Constant.ENTITY_STATUS.ACTIVE)
             .AsQueryable();
 
         if (!string.IsNullOrEmpty(searchDto.SearchString))
@@ -113,11 +114,10 @@ public class WishListRepository : IWishListRepository
             query = query.Where(w => w.Job.Industry == searchDto.Industry);
         }
 
-        // if (!string.IsNullOrEmpty(searchDto.SalaryRange))
-        // {
-        //     var salaryRange = searchDto.SalaryRange.Split("-");
-        //     query = query.Where(w => w.Job.MinSalary >= double.Parse(salaryRange[0]) && j.MaxSalary <= double.Parse(salaryRange[1]));
-        // }
+        if (searchDto.MinSalary != null && searchDto.MaxSalary != null)
+        {
+            query = query.Where(w => w.Job.MinSalary >= searchDto.MinSalary && w.Job.MaxSalary <= searchDto.MaxSalary);
+        }
 
         if (searchDto.ApplicationDeadline.HasValue)
         {

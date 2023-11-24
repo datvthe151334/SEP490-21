@@ -56,7 +56,8 @@ namespace RecruitXpress_BE.Contracts
                 .ForMember(dest => dest.Question1, opt => opt.MapFrom(src => src.Question1));
 
             CreateMap<SpecializedExam, SpecializedExamDTO>()
-           .ForMember(dest => dest.CreatedByAccount, opt => opt.MapFrom(src => src.CreatedByNavigation));
+           .ForMember(dest => dest.CreatedByAccount, opt => opt.MapFrom(src => src.CreatedByNavigation))
+           .ForMember(dest => dest.JobTitle, opt => opt.MapFrom(src => src.Job.Title));
             CreateMap<GeneralTestDetail, GeneralTestDetailDTO>();
             CreateMap<Exam, ExamDTO>();
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RecruitXpress_BE.DTO;
+using RecruitXpress_BE.Helper;
 using RecruitXpress_BE.IRepositories;
 using RecruitXpress_BE.Models;
 
@@ -102,71 +103,117 @@ namespace RecruitXpress_BE.Repositories
         }
 
         //Email template
-        public async Task SendEmailRefuse(int mailtype, string email, string name)
+        public async Task SendEmailRefuse(int jobApplicationID, string reason)
         {
-          var emailTemplate=  _context.EmailTemplates.Where(e => e.MailType == mailtype).FirstOrDefault();
+          var emailTemplate=  _context.EmailTemplates.Where(e => e.MailType == Constant.MailType.REFUSED).FirstOrDefault();
+            var user = _context.JobApplications.Where(j => j.ApplicationId == jobApplicationID).Include(j => j.Profile).FirstOrDefault();
+            var account = _context.Accounts.Where(a => a.AccountId == user.Profile.AccountId).FirstOrDefault();
+            var job = _context.JobPostings.Where(j => j.JobId == user.JobId).FirstOrDefault();
             if (emailTemplate != null)
             {
-                emailTemplate.Body = emailTemplate.Body.Replace("@name", name);
-                _sender.Send(email, emailTemplate.Header, emailTemplate.Body);
+                emailTemplate.Body = emailTemplate.Body.Replace("@jobTitle", job.Title);
+                emailTemplate.Body = emailTemplate.Body.Replace("@company", job.Company);
+                emailTemplate.Body = emailTemplate.Body.Replace("@name", user.Profile.Name);
+                emailTemplate.Body = emailTemplate.Body.Replace("@name", user.Profile.Name);
+                emailTemplate.Body = emailTemplate.Body.Replace("@reason", reason);
+                _sender.Send(account.Account1, emailTemplate.Header, emailTemplate.Body);
             }
         }
-        public async Task SendEmailInterview(int mailtype, string email, string name, string time, string location, string interviewer)
+        public async Task SendEmailSubmitJob(int jobApplicationID)
         {
-            var emailTemplate = _context.EmailTemplates.Where(e => e.MailType == mailtype).FirstOrDefault();
+            var emailTemplate = _context.EmailTemplates.Where(e => e.MailType == Constant.MailType.SUBMIT).FirstOrDefault();
+            var user = _context.JobApplications.Where(j => j.ApplicationId == jobApplicationID).Include(j => j.Profile).FirstOrDefault();
+            var account = _context.Accounts.Where(a => a.AccountId == user.Profile.AccountId).FirstOrDefault();
+            var job = _context.JobPostings.Where(j => j.JobId == user.JobId).FirstOrDefault();
             if (emailTemplate != null)
             {
-                emailTemplate.Body = emailTemplate.Body.Replace("@name", name);
+                emailTemplate.Body = emailTemplate.Body.Replace("@jobTitle", job.Title);
+                emailTemplate.Body = emailTemplate.Body.Replace("@company", job.Company);
+                emailTemplate.Body = emailTemplate.Body.Replace("@name", user.Profile.Name);
+                _sender.Send(account.Account1, emailTemplate.Header, emailTemplate.Body);
+            }
+        }
+        public async Task SendEmailExamSchedule(int jobApplicationID, string time, string location)
+        {
+            var emailTemplate = _context.EmailTemplates.Where(e => e.MailType == Constant.MailType.EXAMSCHEDULE).FirstOrDefault();
+            var user = _context.JobApplications.Where(j => j.ApplicationId == jobApplicationID).Include(j => j.Profile).FirstOrDefault();
+            var account = _context.Accounts.Where(a => a.AccountId == user.Profile.AccountId).FirstOrDefault();
+            var job = _context.JobPostings.Where(j => j.JobId == user.JobId).FirstOrDefault();
+            if (emailTemplate != null)
+            {
+                emailTemplate.Body = emailTemplate.Body.Replace("@jobTitle", job.Title);
+                emailTemplate.Body = emailTemplate.Body.Replace("@company", job.Company);
+                emailTemplate.Body = emailTemplate.Body.Replace("@name", user.Profile.Name);
+                emailTemplate.Body = emailTemplate.Body.Replace("@time", time);
+                emailTemplate.Body = emailTemplate.Body.Replace("@location", location);
+
+                _sender.Send(account.Account1, emailTemplate.Header, emailTemplate.Body);
+            }
+        }
+        public async Task SendEmailInterviewSchedule(int jobApplicationID, string time, string location, string? interviewer)
+        {
+            var emailTemplate = _context.EmailTemplates.Where(e => e.MailType == Constant.MailType.INTERVIEWSCHEDULE).FirstOrDefault();
+            var user = _context.JobApplications.Where(j => j.ApplicationId == jobApplicationID).Include(j => j.Profile).FirstOrDefault();
+            var account = _context.Accounts.Where(a => a.AccountId == user.Profile.AccountId).FirstOrDefault();
+            var job = _context.JobPostings.Where(j => j.JobId == user.JobId).FirstOrDefault();
+            if (emailTemplate != null)
+            {
+                emailTemplate.Body = emailTemplate.Body.Replace("@jobTitle", job.Title);
+                emailTemplate.Body = emailTemplate.Body.Replace("@company", job.Company);
+                emailTemplate.Body = emailTemplate.Body.Replace("@name", user.Profile.Name);
                 emailTemplate.Body = emailTemplate.Body.Replace("@time", time);
                 emailTemplate.Body = emailTemplate.Body.Replace("@location", location);
                 emailTemplate.Body = emailTemplate.Body.Replace("@interviewer", interviewer);
 
-                _sender.Send(email, emailTemplate.Header, emailTemplate.Body);
+                _sender.Send(account.Account1, emailTemplate.Header, emailTemplate.Body);
             }
         }
-        public async Task SendEmailExamSchedule(int mailtype, string email, string name, string time, string location)
+    
+        public async Task SendEmailUpdateProfile(int jobApplicationID)
         {
-            var emailTemplate = _context.EmailTemplates.Where(e => e.MailType == mailtype).FirstOrDefault();
+            var emailTemplate = _context.EmailTemplates.Where(e => e.MailType == Constant.MailType.PASSINTERVIEW).FirstOrDefault();
+            var user = _context.JobApplications.Where(j => j.ApplicationId == jobApplicationID).Include(j => j.Profile).FirstOrDefault();
+            var account = _context.Accounts.Where(a => a.AccountId == user.Profile.AccountId).FirstOrDefault();
+            var job = _context.JobPostings.Where(j => j.JobId == user.JobId).FirstOrDefault();
             if (emailTemplate != null)
             {
-                emailTemplate.Body = emailTemplate.Body.Replace("@name", name);
-                emailTemplate.Body = emailTemplate.Body.Replace("@time", time);
-                emailTemplate.Body = emailTemplate.Body.Replace("@location", location);
-
-                _sender.Send(email, emailTemplate.Header, emailTemplate.Body);
+                emailTemplate.Body = emailTemplate.Body.Replace("@jobTitle", job.Title);
+                emailTemplate.Body = emailTemplate.Body.Replace("@company", job.Company);
+                emailTemplate.Body = emailTemplate.Body.Replace("@name", user.Profile.Name);
+                _sender.Send(account.Account1, emailTemplate.Header, emailTemplate.Body);
             }
         }
-        public async Task SendEmailUpdateProfile(int mailtype, string email, string name)
+        public async Task SendEmailAccepted(int jobApplicationID)
         {
-            var emailTemplate = _context.EmailTemplates.Where(e => e.MailType == mailtype).FirstOrDefault();
+            var emailTemplate = _context.EmailTemplates.Where(e => e.MailType == Constant.MailType.ACCEPTED).FirstOrDefault();
+            var user = _context.JobApplications.Where(j => j.ApplicationId == jobApplicationID).Include(j => j.Profile).FirstOrDefault();
+            var account = _context.Accounts.Where(a => a.AccountId == user.Profile.AccountId).FirstOrDefault();
+            var job = _context.JobPostings.Where(j => j.JobId == user.JobId).FirstOrDefault();
             if (emailTemplate != null)
             {
-                emailTemplate.Body = emailTemplate.Body.Replace("@name", name);
+                emailTemplate.Body = emailTemplate.Body.Replace("@jobTitle", job.Title);
+                emailTemplate.Body = emailTemplate.Body.Replace("@company", job.Company);
+                emailTemplate.Body = emailTemplate.Body.Replace("@name", user.Profile.Name);
 
-                _sender.Send(email, emailTemplate.Header, emailTemplate.Body);
+                _sender.Send(account.Account1, emailTemplate.Header, emailTemplate.Body);
             }
         }
-        public async Task SendEmailAccepted(int mailtype, string email, string name)
+        public async Task SendEmailCanceled(int jobApplicationID)
         {
-            var emailTemplate = _context.EmailTemplates.Where(e => e.MailType == mailtype).FirstOrDefault();
+            var emailTemplate = _context.EmailTemplates.Where(e => e.MailType == Constant.MailType.CANCEL).FirstOrDefault();
+            var user = _context.JobApplications.Where(j => j.ApplicationId == jobApplicationID).Include(j => j.Profile).FirstOrDefault();
+            var account = _context.Accounts.Where(a => a.AccountId == user.Profile.AccountId).FirstOrDefault();
+            var job = _context.JobPostings.Where(j => j.JobId == user.JobId).FirstOrDefault();
             if (emailTemplate != null)
             {
-                emailTemplate.Body = emailTemplate.Body.Replace("@name", name);
+                emailTemplate.Body = emailTemplate.Body.Replace("@jobTitle", job.Title);
+                emailTemplate.Body = emailTemplate.Body.Replace("@company", job.Company);
+                emailTemplate.Body = emailTemplate.Body.Replace("@name", user.Profile.Name);
 
-                _sender.Send(email, emailTemplate.Header, emailTemplate.Body);
+                _sender.Send(account.Account1, emailTemplate.Header, emailTemplate.Body);
             }
         }
-        public async Task SendEmailCanceled(int mailtype, string email, string name)
-        {
-            var emailTemplate = _context.EmailTemplates.Where(e => e.MailType == mailtype).FirstOrDefault();
-            if (emailTemplate != null)
-            {
-                emailTemplate.Body = emailTemplate.Body.Replace("@name", name);
 
-                _sender.Send(email, emailTemplate.Header, emailTemplate.Body);
-            }
-        }
-        //
         public async Task CreateEmailTemplate(EmailTemplate emailTemplate)
         {
             _context.EmailTemplates.Add(emailTemplate);
@@ -188,5 +235,10 @@ namespace RecruitXpress_BE.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
     }
 }
+
+
+
+

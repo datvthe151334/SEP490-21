@@ -31,7 +31,27 @@ namespace RecruitXpress_BE.Controllers
                 {
                     return BadRequest("Thieu jobId");
                 }
-                var profile = await _context.ShortListings.Where(x => x.JobId == jobId && x.Status == 1).ToListAsync();
+                var profile = await _context.ShortListings.Include(x => x.Profile).ThenInclude(x => x.Account).ThenInclude(x => x.CandidateCvs).Include(x => x.Job).Where(x => x.Status == 1).ToListAsync();
+                if (profile == null)
+                {
+                    return NotFound("Không kết quả");
+                }
+
+                return Ok(profile);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("AllShortListing")]
+        public async Task<IActionResult> GetAllShortListing()
+        {
+            try
+            {
+               
+                var profile = await _context.ShortListings.Include(x => x.Profile).ThenInclude(x=>x.Account).ThenInclude(x=>x.CandidateCvs).Include(x => x.Job).Where(x => x.Status == 1).ToListAsync();
                 if (profile == null)
                 {
                     return NotFound("Không kết quả");

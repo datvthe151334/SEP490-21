@@ -20,14 +20,14 @@ namespace RecruitXpress_BE.Controllers
         // Define your controller actions here.
         // For example, you can define actions to get all email templates, get an email template by ID, create, update, and delete email templates.
 
-        [HttpGet]
+        [HttpGet("GetList")]
         public async Task<IActionResult> GetAllEmailTemplates([FromQuery] EmailTemplateRequest request)
         {
             var emailTemplates = await _emailTemplateRepository.GetAllEmailTemplates(request);
             return Ok(emailTemplates);
         }
 
-        [HttpGet("{templateId}")]
+        [HttpGet("GetById")]
         public async Task<IActionResult> GetEmailTemplateById(int templateId)
         {
             var emailTemplate = await _emailTemplateRepository.GetEmailTemplateById(templateId);
@@ -38,14 +38,14 @@ namespace RecruitXpress_BE.Controllers
             return Ok(emailTemplate);
         }
 
-        [HttpPost]
+        [HttpPost("Create")]
         public async Task<IActionResult> CreateEmailTemplate([FromBody] EmailTemplate emailTemplate)
         {
             await _emailTemplateRepository.CreateEmailTemplate(emailTemplate);
             return CreatedAtAction("GetEmailTemplateById", new { templateId = emailTemplate.TemplateId }, emailTemplate);
         }
 
-        [HttpPut("{templateId}")]
+        [HttpPut("Update")]
         public async Task<IActionResult> UpdateEmailTemplate(int templateId, [FromBody] EmailTemplate emailTemplate)
         {
             if (templateId != emailTemplate.TemplateId)
@@ -57,7 +57,7 @@ namespace RecruitXpress_BE.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{templateId}")]
+        [HttpDelete("Delete")]
         public async Task<IActionResult> DeleteEmailTemplate(int templateId)
         {
             var emailTemplate = await _emailTemplateRepository.GetEmailTemplateById(templateId);
@@ -71,45 +71,50 @@ namespace RecruitXpress_BE.Controllers
         }
 
 
-        [HttpPost("refuse")]
-        public async Task<IActionResult> SendEmailRefuse([FromQuery] int mailtype, [FromQuery] string email, [FromQuery] string name)
+        [HttpPost("Refuse")]
+        public async Task<IActionResult> SendEmailRefuse(int jobApplicationID, string reason)
         {
-            await _emailTemplateRepository.SendEmailRefuse(mailtype, email, name);
+            await _emailTemplateRepository.SendEmailRefuse(jobApplicationID, reason);
+            return Ok("Email sent successfully");
+        }
+        [HttpPost("SubmitJob")]
+        public async Task<IActionResult> SendEmailSubmitJob(int jobApplicationID)
+        {
+            await _emailTemplateRepository.SendEmailSubmitJob(jobApplicationID);
             return Ok("Email sent successfully");
         }
 
-        [HttpPost("interview")]
-        public async Task<IActionResult> SendEmailInterview([FromQuery] int mailtype, [FromQuery] string email, [FromQuery] string name, [FromQuery] string time, [FromQuery] string location, [FromQuery] string interviewer)
+        [HttpPost("ExamSchedule")]
+        public async Task<IActionResult> SendEmailExamSchedule(int jobApplicationID, string time, string location)
         {
-            await _emailTemplateRepository.SendEmailInterview(mailtype, email, name, time, location, interviewer);
+            await _emailTemplateRepository.SendEmailExamSchedule(jobApplicationID, time, location);
+            return Ok("Email sent successfully");
+        }
+        [HttpPost("Interview")]
+        public async Task<IActionResult> SendEmailInterview(int jobApplicationID, string time, string location, string? interviewer)
+        {
+            await _emailTemplateRepository.SendEmailInterviewSchedule(jobApplicationID, time, location, interviewer);
             return Ok("Email sent successfully");
         }
 
-        [HttpPost("exam-schedule")]
-        public async Task<IActionResult> SendEmailExamSchedule([FromQuery] int mailtype, [FromQuery] string email, [FromQuery] string name, [FromQuery] string time, [FromQuery] string location)
+        [HttpPost("UpdateProfile")]
+        public async Task<IActionResult> SendEmailUpdateProfile(int jobApplicationID)
         {
-            await _emailTemplateRepository.SendEmailExamSchedule(mailtype, email, name, time, location);
+            await _emailTemplateRepository.SendEmailUpdateProfile(jobApplicationID);
             return Ok("Email sent successfully");
         }
 
-        [HttpPost("update-profile")]
-        public async Task<IActionResult> SendEmailUpdateProfile([FromQuery] int mailtype, [FromQuery] string email, [FromQuery] string name)
+        [HttpPost("Accepted")]
+        public async Task<IActionResult> SendEmailAccepted(int jobApplicationID)
         {
-            await _emailTemplateRepository.SendEmailUpdateProfile(mailtype, email, name);
+            await _emailTemplateRepository.SendEmailAccepted(jobApplicationID);
             return Ok("Email sent successfully");
         }
 
-        [HttpPost("accepted")]
-        public async Task<IActionResult> SendEmailAccepted([FromQuery] int mailtype, [FromQuery] string email, [FromQuery] string name)
+        [HttpPost("Canceled")]
+        public async Task<IActionResult> SendEmailCanceled(int jobApplicationID)
         {
-            await _emailTemplateRepository.SendEmailAccepted(mailtype, email, name);
-            return Ok("Email sent successfully");
-        }
-
-        [HttpPost("canceled")]
-        public async Task<IActionResult> SendEmailCanceled([FromQuery] int mailtype, [FromQuery] string email, [FromQuery] string name)
-        {
-            await _emailTemplateRepository.SendEmailCanceled(mailtype, email, name);
+            await _emailTemplateRepository.SendEmailCanceled(jobApplicationID);
             return Ok("Email sent successfully");
         }
     }
